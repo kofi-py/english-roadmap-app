@@ -1,0 +1,73 @@
+.curriculum-page {
+  flex: 1;
+}
+
+.curriculum-header {
+  padding: 4rem 0 2rem;
+  text-align: center;
+  background: white;
+  border-bottom: 3px solid #8B4513;
+}
+
+.curriculum-title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  font-family: 'Crimson Text', serif;
+  font-weight: 700;
+}
+
+.curriculum-subtitle {
+  font-size: 1.2rem;
+  color: #7f8c8d;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  line-height: 1.8;
+}
+
+.search-box {
+  width: 100%;
+  max-width: 600px;
+  padding: 1rem 1.5rem;
+  border: 2px solid #228B22;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: 'Lora', serif;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-box:focus {
+  outline: none;
+  border-color: #8B4513;
+  box-shadow: 0 5px 20px rgba(139, 69, 19, 0.15);
+}
+
+.level-section {
+  background: white;
+  border-radius: 8px;
+  padding: 3rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-left: 6px solid #8B4513;
+}
+
+.level-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(139, 69, 19, 0.2);
+}
+
+.level-title {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-family: 'Crimson Text', serif;
+  font-weight: 700;
+}
+
+.level-subtitle {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  font-style: italic;
+}

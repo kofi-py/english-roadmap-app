@@ -1,0 +1,143 @@
+.forum-page {
+  flex: 1;
+}
+
+.forum-header {
+  padding: 4rem 0 2rem;
+  text-align: center;
+  background: white;
+  border-bottom: 3px solid #8B4513;
+}
+
+.forum-title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  font-family: 'Crimson Text', serif;
+  font-weight: 700;
+}
+
+.forum-subtitle {
+  font-size: 1.2rem;
+  color: #7f8c8d;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.forum-container {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 2rem;
+  padding: 3rem 0;
+}
+
+.sidebar {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-top: 4px solid #8B4513;
+}
+
+.sidebar-title {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  font-family: 'Crimson Text', serif;
+}
+
+.category {
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  background: linear-gradient(90deg, rgba(139, 69, 19, 0.05), rgba(34, 139, 34, 0.05));
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+  text-transform: lowercase;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category:hover,
+.category.active {
+  border-left-color: #8B4513;
+  transform: translateX(5px);
+  background: linear-gradient(90deg, rgba(139, 69, 19, 0.15), rgba(34, 139, 34, 0.15));
+}
+
+.forum-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.post-card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-left: 4px solid #228B22;
+}
+
+.post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+.post-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-family: 'Crimson Text', serif;
+}
+
+.post-meta {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.post-author {
+  font-weight: 600;
+  color: #8B4513;
+}
+
+.post-excerpt {
+  color: #5a6c7d;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.post-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .forum-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebar {
+    position: static;
+  }
+}
