@@ -132,11 +132,68 @@
   font-size: 0.9rem;
 }
 
+.forum-actions {
+  margin-bottom: 2rem;
+}
+
+.create-post-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  border-left: 4px solid var(--saddle-brown);
+}
+
+.form-title {
+  font-family: 'Crimson Text', serif;
+  font-size: 1.5rem;
+  color: var(--ink-blue);
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-family: 'Crimson Text', serif;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--ink-blue);
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fdfdfd;
+}
+
+.form-textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--saddle-brown);
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+  background: white;
+}
+
 @media (max-width: 768px) {
   .forum-container {
     grid-template-columns: 1fr;
   }
-  
+
   .sidebar {
     position: static;
   }
