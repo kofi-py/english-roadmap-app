@@ -10,23 +10,29 @@ const Navigation = ({ currentPage, setCurrentPage }) => {
           <span className="logo-text">english mastery roadmap</span>
         </div>
         <ul className="nav-links">
-          <li 
+          <li
             className={`nav-item ${currentPage === 'curriculum' ? 'active' : ''}`}
             onClick={() => setCurrentPage('curriculum')}
           >
             curriculum
           </li>
-          <li 
+          <li
             className={`nav-item ${currentPage === 'diagnostic' ? 'active' : ''}`}
             onClick={() => setCurrentPage('diagnostic')}
           >
             diagnostic
           </li>
-          <li 
+          <li
             className={`nav-item ${currentPage === 'forum' ? 'active' : ''}`}
             onClick={() => setCurrentPage('forum')}
           >
             forum
+          </li>
+          <li
+            className={`nav-item ${currentPage === 'contact' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('contact')}
+          >
+            contact
           </li>
         </ul>
       </div>

@@ -1,0 +1,117 @@
+.contact-page {
+  flex: 1;
+  width: 100%;
+}
+
+.contact-hero {
+  padding: 6rem 0;
+  text-align: center;
+}
+
+.contact-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--ink-blue);
+  font-family: 'Crimson Text', serif;
+  letter-spacing: 1px;
+}
+
+.contact-subtitle {
+  font-size: 1.2rem;
+  color: var(--dark-gray);
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+
+.contact-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  background: white;
+  padding: 4rem;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.form-label {
+  font-family: 'Crimson Text', serif;
+  font-size: 1.2rem;
+  color: var(--ink-blue);
+  font-weight: 600;
+}
+
+.form-input, .form-textarea {
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  color: var(--ink-blue);
+  background: #fdfdfd;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--saddle-brown);
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+  background: white;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.info-card {
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.05), rgba(34, 139, 34, 0.05));
+  padding: 2rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--saddle-brown);
+}
+
+.info-title {
+  font-family: 'Crimson Text', serif;
+  font-size: 1.5rem;
+  color: var(--ink-blue);
+  margin-bottom: 0.5rem;
+}
+
+.info-text {
+  color: var(--dark-gray);
+  line-height: 1.6;
+}
+
+.info-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .contact-content {
+    grid-template-columns: 1fr;
+    padding: 2rem;
+  }
+}

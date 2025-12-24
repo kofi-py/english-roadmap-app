@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage';
 import CurriculumPage from './pages/CurriculumPage';
 import DiagnosticPage from './pages/DiagnosticPage';
 import ForumPage from './pages/ForumPage';
+import ContactPage from './pages/ContactPage';
 import Footer from './components/Footer';
 import './styles/global.css';
 
@@ -24,7 +25,7 @@ const App = () => {
     const newCompleted = completedCourses.includes(courseId)
       ? completedCourses.filter(id => id !== courseId)
       : [...completedCourses, courseId];
-    
+
     setCompletedCourses(newCompleted);
     localStorage.setItem('englishProgress', JSON.stringify(newCompleted));
   };
@@ -32,10 +33,10 @@ const App = () => {
   return (
     <div className="app">
       <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      
+
       {currentPage === 'home' && <HomePage setCurrentPage={setCurrentPage} />}
       {currentPage === 'curriculum' && (
-        <CurriculumPage 
+        <CurriculumPage
           completedCourses={completedCourses}
           toggleComplete={toggleComplete}
           searchQuery={searchQuery}
@@ -44,7 +45,8 @@ const App = () => {
       )}
       {currentPage === 'diagnostic' && <DiagnosticPage setCurrentPage={setCurrentPage} />}
       {currentPage === 'forum' && <ForumPage />}
-      
+      {currentPage === 'contact' && <ContactPage />}
+
       <Footer completedCourses={completedCourses} />
     </div>
   );
