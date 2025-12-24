@@ -17,47 +17,20 @@ const Navigation = ({ currentPage, setCurrentPage }) => {
           <span className="logo-text">english mastery roadmap</span>
         </div>
         <ul className="nav-links">
-          <li
-            className={`nav-item ${currentPage === 'curriculum' ? 'active' : ''}`}
-            onClick={() => setCurrentPage('curriculum')}
-          >
-            curriculum
-          </li>
-          <li
-            className={`nav-item ${currentPage === 'diagnostic' ? 'active' : ''}`}
-            onClick={() => setCurrentPage('diagnostic')}
-          >
-            diagnostic
-          </li>
-          <li
-            className={`nav-item ${currentPage === 'forum' ? 'active' : ''}`}
-            onClick={() => setCurrentPage('forum')}
-          >
-            forum
-          </li>
-          <li
-            className={`nav-item ${currentPage === 'contact' ? 'active' : ''}`}
-            onClick={() => setCurrentPage('contact')}
-          >
-            contact
-          </li>
-
+          <li className="nav-item" onClick={() => setCurrentPage('curriculum')}>curriculum</li>
+          <li className="nav-item" onClick={() => setCurrentPage('diagnostic')}>diagnostic</li>
+          <li className="nav-item" onClick={() => setCurrentPage('forum')}>forum</li>
+          <li className="nav-item" onClick={() => setCurrentPage('contact')}>contact</li>
           {user ? (
             <>
-              <li className="nav-item user-badge">
-                👤 {user.username}
+              <li className="user-badge">
+                <span className="user-icon">👤</span>
+                {user.username}
               </li>
-              <li className="nav-item" onClick={handleLogout}>
-                logout
-              </li>
+              <li className="nav-item" onClick={handleLogout}>logout</li>
             </>
           ) : (
-            <li
-              className={`nav-item ${currentPage === 'login' ? 'active' : ''}`}
-              onClick={() => setCurrentPage('login')}
-            >
-              login
-            </li>
+            <li className="nav-item" onClick={() => setCurrentPage('login')}>login</li>
           )}
         </ul>
       </div>

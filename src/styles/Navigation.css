@@ -1,11 +1,11 @@
 .nav {
-  background: rgba(44, 62, 80, 0.98);
-  backdrop-filter: blur(10px);
+  background: white;
+  /* Clean white nav */
   padding: 1rem 0;
   position: sticky;
   top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
   border-bottom: 3px solid #8B4513;
 }
 
@@ -21,7 +21,7 @@
 .logo {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f5f1e8;
+  color: var(--ink-blue);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -40,6 +40,8 @@
 .nav-links {
   list-style: none;
   display: flex;
+  flex-direction: row;
+  /* Fix vertical stacking */
   gap: 2rem;
   align-items: center;
   margin: 0;
@@ -47,7 +49,7 @@
 }
 
 .nav-item {
-  color: #f5f1e8;
+  color: var(--ink-blue);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
