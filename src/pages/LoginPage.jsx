@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import '../styles/ForumPage.css'; // Reusing some forum styles for consistency
+import '../styles/AuthPage.css';
 
 const LoginPage = ({ setCurrentPage }) => {
     const [email, setEmail] = useState('');
@@ -20,50 +20,53 @@ const LoginPage = ({ setCurrentPage }) => {
     };
 
     return (
-        <div className="forum-page" style={{ maxWidth: '400px', margin: '100px auto' }}>
-            <div className="forum-header" style={{ textAlign: 'center' }}>
-                <h1 className="forum-title">welcome back</h1>
-                <p className="forum-subtitle">log in to join the conversation</p>
-            </div>
+        <div className="auth-page">
+            {/* Decorative background elements matching HomePage */}
+            <div className="decorative-quote decorative-quote-1" style={{ position: 'absolute' }}>"</div>
+            <div className="decorative-quote decorative-quote-2" style={{ position: 'absolute' }}>"</div>
 
-            <div className="card" style={{ padding: '2rem' }}>
-                <form onSubmit={handleSubmit}>
-                    {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
-                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontFamily: "'Lora', serif" }}>email</label>
+            <div className="auth-container fade-in-up">
+                <div className="auth-header">
+                    <h1 className="auth-title">welcome back</h1>
+                    <p className="auth-subtitle">log in to continue your journey</p>
+                </div>
+
+                {error && <div className="error-message">{error}</div>}
+
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>email</label>
                         <input
                             type="email"
-                            className="search-input"
-                            style={{ paddingLeft: '1rem' }}
+                            className="auth-input"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            placeholder="your@email.com"
                         />
                     </div>
-                    <div className="form-group" style={{ marginBottom: '2rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontFamily: "'Lora', serif" }}>password</label>
+                    <div className="form-group">
+                        <label>password</label>
                         <input
                             type="password"
-                            className="search-input"
-                            style={{ paddingLeft: '1rem' }}
+                            className="auth-input"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            placeholder="••••••••"
                         />
                     </div>
-                    <button type="submit" className="btn-primary" style={{ width: '100%' }}>
+                    <button type="submit" className="btn-primary btn-auth">
                         log in
                     </button>
                 </form>
-                <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
+
+                <div className="auth-footer">
                     don't have an account?
-                    <span
-                        style={{ color: 'var(--saddle-brown)', cursor: 'pointer', marginLeft: '0.5rem', fontWeight: 'bold' }}
-                        onClick={() => setCurrentPage('signup')}
-                    >
+                    <span className="auth-link" onClick={() => setCurrentPage('signup')}>
                         sign up
                     </span>
-                </p>
+                </div>
             </div>
         </div>
     );

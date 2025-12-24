@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import '../styles/ForumPage.css';
+import '../styles/AuthPage.css';
 
 const SignupPage = ({ setCurrentPage }) => {
     const [username, setUsername] = useState('');
@@ -21,61 +21,64 @@ const SignupPage = ({ setCurrentPage }) => {
     };
 
     return (
-        <div className="forum-page" style={{ maxWidth: '400px', margin: '80px auto' }}>
-            <div className="forum-header" style={{ textAlign: 'center' }}>
-                <h1 className="forum-title">create account</h1>
-                <p className="forum-subtitle">start sharing your english journey</p>
-            </div>
+        <div className="auth-page">
+            {/* Decorative background elements matching HomePage */}
+            <div className="decorative-quote decorative-quote-1" style={{ position: 'absolute' }}>"</div>
+            <div className="decorative-quote decorative-quote-2" style={{ position: 'absolute' }}>"</div>
 
-            <div className="card" style={{ padding: '2rem' }}>
-                <form onSubmit={handleSubmit}>
-                    {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
-                    <div className="form-group" style={{ marginBottom: '1.2rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.4rem', fontFamily: "'Lora', serif" }}>username</label>
+            <div className="auth-container fade-in-up">
+                <div className="auth-header">
+                    <h1 className="auth-title">create account</h1>
+                    <p className="auth-subtitle">join a community of literature lovers</p>
+                </div>
+
+                {error && <div className="error-message">{error}</div>}
+
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>username</label>
                         <input
                             type="text"
-                            className="search-input"
-                            style={{ paddingLeft: '1rem' }}
+                            className="auth-input"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
+                            placeholder="chosen_name"
                         />
                     </div>
-                    <div className="form-group" style={{ marginBottom: '1.2rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.4rem', fontFamily: "'Lora', serif" }}>email</label>
+                    <div className="form-group">
+                        <label>email</label>
                         <input
                             type="email"
-                            className="search-input"
-                            style={{ paddingLeft: '1rem' }}
+                            className="auth-input"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            placeholder="your@email.com"
                         />
                     </div>
-                    <div className="form-group" style={{ marginBottom: '1.8rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.4rem', fontFamily: "'Lora', serif" }}>password</label>
+                    <div className="form-group">
+                        <label>password</label>
                         <input
                             type="password"
-                            className="search-input"
-                            style={{ paddingLeft: '1rem' }}
+                            className="auth-input"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            placeholder="••••••••"
                         />
                     </div>
-                    <button type="submit" className="btn-primary" style={{ width: '100%' }}>
+                    <button type="submit" className="btn-primary btn-auth">
                         sign up
                     </button>
                 </form>
-                <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
+
+                <div className="auth-footer">
                     already have an account?
-                    <span
-                        style={{ color: 'var(--saddle-brown)', cursor: 'pointer', marginLeft: '0.5rem', fontWeight: 'bold' }}
-                        onClick={() => setCurrentPage('login')}
-                    >
+                    <span className="auth-link" onClick={() => setCurrentPage('login')}>
                         log in
                     </span>
-                </p>
+                </div>
             </div>
         </div>
     );
