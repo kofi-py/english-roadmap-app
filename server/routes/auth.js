@@ -2,12 +2,11 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Pool } = require('pg');
+const pool = require('../db');
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-});
+if (!process.env.JWT_SECRET) {
+    console.error('FATAL ERROR: JWT_SECRET is not defined.');
+}
 
 // Signup
 router.post('/signup', async (req, res) => {
@@ -22,8 +21,11 @@ router.post('/signup', async (req, res) => {
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
         res.status(201).json({ user, token });
     } catch (err) {
-        console.error(err);
-        res.status(400).json({ error: 'Username or email already exists' });
+        console.error('Signup Error:', err);
+        if (err.code === '23505') {
+            return res.status(400).json({ error: 'Username or email already exists' });
+        }
+        res.status(500).json({ error: 'Server error during signup' });
     }
 });
 

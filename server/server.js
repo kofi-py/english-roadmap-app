@@ -17,11 +17,7 @@ app.use(cors({
 app.use(express.json());
 
 // Database Connection
-console.log('Connecting to database:', process.env.DATABASE_URL ? 'URL detected' : 'URL MISSING');
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-});
+const pool = require('./db');
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
