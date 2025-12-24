@@ -67,11 +67,15 @@ app.get('/api/posts', async (req, res) => {
 app.post('/api/posts', authenticateToken, async (req, res) => {
     const { title, category, content } = req.body;
     try {
+        // Fetch username to store with post for faster rendering
+        const userRes = await pool.query('SELECT username FROM users WHERE id = $1', [req.user.userId]);
+        const username = userRes.rows[0]?.username || 'authenticated user';
+
         const result = await pool.query(
             'INSERT INTO posts (user_id, title, author, category, content) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [req.user.userId, title.toLowerCase(), 'authenticated user', category, content.toLowerCase()]
+            [req.user.userId, title.toLowerCase(), username, category, content.toLowerCase()]
         );
-        res.status(201).json(result.rows[0]);
+        res.status(201).json({ ...result.rows[0], author: username });
     } catch (err) {
         console.error('Database error (POST post):', err.message);
         // Return mock data for local testing
@@ -109,11 +113,14 @@ app.post('/api/posts/:id/replies', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { content } = req.body;
     try {
+        const userRes = await pool.query('SELECT username FROM users WHERE id = $1', [req.user.userId]);
+        const username = userRes.rows[0]?.username || 'authenticated user';
+
         const result = await pool.query(
             'INSERT INTO replies (post_id, user_id, author, content) VALUES ($1, $2, $3, $4) RETURNING *',
-            [id, req.user.userId, 'authenticated user', content.toLowerCase()]
+            [id, req.user.userId, username, content.toLowerCase()]
         );
-        res.status(201).json(result.rows[0]);
+        res.status(201).json({ ...result.rows[0], author: username });
     } catch (err) {
         console.error('Database error (POST reply):', err.message);
         // Return mock data for local testing

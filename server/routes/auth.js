@@ -33,18 +33,34 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase()]);
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required' });
+        }
+
+        const emailLower = email.toLowerCase();
+        const result = await pool.query('SELECT * FROM users WHERE email = $1', [emailLower]);
         const user = result.rows[0];
-        if (!user) return res.status(400).json({ error: 'User not found' });
+
+        if (!user) {
+            console.log(`Login attempt failed: User ${emailLower} not found`);
+            return res.status(400).json({ error: 'User not found' });
+        }
 
         const validPassword = await bcrypt.compare(password, user.password_hash);
-        if (!validPassword) return res.status(400).json({ error: 'Invalid password' });
+        if (!validPassword) {
+            console.log(`Login attempt failed: Invalid password for ${emailLower}`);
+            return res.status(400).json({ error: 'Invalid password' });
+        }
+
+        if (!process.env.JWT_SECRET) {
+            throw new Error('JWT_SECRET missing in environment');
+        }
 
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
         res.json({ user: { id: user.id, username: user.username, email: user.email }, token });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        console.error('Login Error:', err);
+        res.status(500).json({ error: 'Server error during login. Please check server logs.' });
     }
 });
 
