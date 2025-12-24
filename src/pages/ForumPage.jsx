@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { forumPosts } from '../data/forumData';
 import '../styles/ForumPage.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 const ForumPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [posts, setPosts] = useState([]);
@@ -22,7 +24,7 @@ const ForumPage = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/posts');
+      const response = await fetch(`${API_URL}/api/posts`);
       if (response.ok) {
         const data = await response.json();
         setPosts(data.length > 0 ? data : forumPosts.map((p, i) => ({ ...p, id: i + 1, created_at: new Date() })));
@@ -37,7 +39,7 @@ const ForumPage = () => {
 
   const fetchReplies = async (postId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/posts/${postId}/replies`);
+      const response = await fetch(`${API_URL}/api/posts/${postId}/replies`);
       if (response.ok) {
         const data = await response.json();
         setReplies(prev => ({
@@ -65,7 +67,7 @@ const ForumPage = () => {
   const handleCreatePost = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:3000/api/posts', {
+      const response = await fetch(`${API_URL}/api/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,9 +81,14 @@ const ForumPage = () => {
       });
 
       if (response.ok) {
+        const savedPost = await response.json();
         setNewPost({ title: '', category: 'discussion', content: '' });
         setIsCreating(false);
-        fetchPosts(); // Refresh list
+
+        // Optimistically update local posts state
+        setPosts(prev => [savedPost, ...prev]);
+
+        // fetchPosts(); // Optionally still fetch if DB is connected
       }
     } catch (error) {
       console.error('Error creating post:', error);
@@ -102,7 +109,7 @@ const ForumPage = () => {
   const handleCreateReply = async (e, postId) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:3000/api/posts/${postId}/replies`, {
+      const response = await fetch(`${API_URL}/api/posts/${postId}/replies`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,8 +121,17 @@ const ForumPage = () => {
       });
 
       if (response.ok) {
+        const savedReply = await response.json();
         setNewReply('');
-        fetchReplies(postId); // Refresh replies
+
+        // Optimistically update local replies state
+        setReplies(prev => ({
+          ...prev,
+          [postId]: [...(prev[postId] || []), savedReply]
+        }));
+
+        // Optionally still fetch for freshest data if DB is actually connected
+        // fetchReplies(postId); 
       }
     } catch (error) {
       console.error('Error creating reply:', error);
@@ -125,11 +141,14 @@ const ForumPage = () => {
   const handleLike = async (e, postId) => {
     e.stopPropagation();
     try {
-      const response = await fetch(`http://localhost:3000/api/posts/${postId}/like`, {
+      const response = await fetch(`${API_URL}/api/posts/${postId}/like`, {
         method: 'POST',
       });
       if (response.ok) {
-        fetchPosts();
+        // Optimistically update the likes count in local state
+        setPosts(prev => prev.map(post =>
+          post.id === postId ? { ...post, likes: (post.likes || 0) + 1 } : post
+        ));
       }
     } catch (error) {
       console.error('Error liking post:', error);
