@@ -4,13 +4,51 @@ import '../styles/ForumPage.css';
 
 const ForumPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [posts, setPosts] = useState(forumPosts);
+  const [posts, setPosts] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
   const [newPost, setNewPost] = useState({
     title: '',
     category: 'discussion',
     content: ''
   });
+  const [expandedPostId, setExpandedPostId] = useState(null);
+  const [replies, setReplies] = useState({}); // Map of postId -> replies array
+  const [newReply, setNewReply] = useState('');
+
+  // Fetch posts on mount
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/posts');
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data.length > 0 ? data : forumPosts.map((p, i) => ({ ...p, id: i + 1, created_at: new Date() })));
+      } else {
+        setPosts(forumPosts.map((p, i) => ({ ...p, id: i + 1, created_at: new Date() })));
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      setPosts(forumPosts.map((p, i) => ({ ...p, id: i + 1, created_at: new Date() })));
+    }
+  };
+
+  const fetchReplies = async (postId) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/posts/${postId}/replies`);
+      if (response.ok) {
+        const data = await response.json();
+        setReplies(prev => ({
+          ...prev,
+          [postId]: data
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching replies:', error);
+    }
+  };
 
   const filteredPosts = selectedCategory === 'all'
     ? posts
@@ -24,22 +62,64 @@ const ForumPage = () => {
     { id: 'success', icon: '🎉', label: 'success stories' }
   ];
 
-  const handleCreatePost = (e) => {
+  const handleCreatePost = async (e) => {
     e.preventDefault();
-    const post = {
-      title: newPost.title.toLowerCase(),
-      author: 'you', // In a real app, this would be the logged-in user
-      time: 'just now',
-      replies: 0,
-      helpful: 0,
-      category: newPost.category,
-      excerpt: newPost.content.toLowerCase(), // Using content as excerpt for now
-      id: posts.length + 1
-    };
+    try {
+      const response = await fetch('http://localhost:3000/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: newPost.title,
+          author: 'you',
+          category: newPost.category,
+          content: newPost.content
+        }),
+      });
 
-    setPosts([post, ...posts]);
-    setIsCreating(false);
-    setNewPost({ title: '', category: 'discussion', content: '' });
+      if (response.ok) {
+        setNewPost({ title: '', category: 'discussion', content: '' });
+        setIsCreating(false);
+        fetchPosts(); // Refresh list
+      }
+    } catch (error) {
+      console.error('Error creating post:', error);
+    }
+  };
+
+  const toggleReplies = (postId) => {
+    if (expandedPostId === postId) {
+      setExpandedPostId(null);
+    } else {
+      setExpandedPostId(postId);
+      if (!replies[postId]) {
+        fetchReplies(postId);
+      }
+    }
+  };
+
+  const handleCreateReply = async (e, postId) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`http://localhost:3000/api/posts/${postId}/replies`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          author: 'you',
+          content: newReply
+        }),
+      });
+
+      if (response.ok) {
+        setNewReply('');
+        fetchReplies(postId); // Refresh replies
+      }
+    } catch (error) {
+      console.error('Error creating reply:', error);
+    }
   };
 
   return (
@@ -125,29 +205,58 @@ const ForumPage = () => {
               </form>
             )}
 
-            {filteredPosts.map((post, idx) => (
-              <div key={idx} className="post-card">
-                <div className="post-header">
+            {filteredPosts.map((post) => (
+              <div key={post.id} className="post-card">
+                <div className="post-header" onClick={() => toggleReplies(post.id)}>
                   <div>
                     <div className="post-title">{post.title}</div>
                     <div className="post-meta">
                       <span className="post-author">{post.author}</span>
                       <span> • </span>
-                      <span>{post.time}</span>
+                      <span>{new Date(post.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
-                <div className="post-excerpt">{post.excerpt}</div>
+                <div className="post-excerpt">{post.content}</div> {/* Using content as excerpt */}
                 <div className="post-stats">
-                  <div className="stat">
+                  <div className="stat" onClick={() => toggleReplies(post.id)} style={{ cursor: 'pointer' }}>
                     <span>💬</span>
-                    <span>{post.replies} replies</span>
+                    <span>{post.reply_count || 0} replies</span>
                   </div>
                   <div className="stat">
                     <span>❤️</span>
-                    <span>{post.helpful} helpful</span>
+                    <span>{post.likes || 0} helpful</span>
                   </div>
+                  <button
+                    className="btn-reply-toggle"
+                    onClick={() => toggleReplies(post.id)}
+                  >
+                    {expandedPostId === post.id ? 'close replies' : 'reply'}
+                  </button>
                 </div>
+
+                {expandedPostId === post.id && (
+                  <div className="replies-section fade-in">
+                    {replies[post.id] && replies[post.id].map(reply => (
+                      <div key={reply.id} className="reply-card">
+                        <div className="reply-author">{reply.author}</div>
+                        <div className="reply-content">{reply.content}</div>
+                        <div className="reply-time">{new Date(reply.created_at).toLocaleDateString()}</div>
+                      </div>
+                    ))}
+
+                    <form className="reply-form" onSubmit={(e) => handleCreateReply(e, post.id)}>
+                      <textarea
+                        className="form-textarea reply-input"
+                        value={newReply}
+                        onChange={(e) => setNewReply(e.target.value)}
+                        placeholder="write a reply..."
+                        required
+                      ></textarea>
+                      <button type="submit" className="btn-secondary btn-sm">send reply</button>
+                    </form>
+                  </div>
+                )}
               </div>
             ))}
           </main>
