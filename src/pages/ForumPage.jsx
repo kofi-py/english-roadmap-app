@@ -16,6 +16,7 @@ const ForumPage = () => {
   const [expandedPostId, setExpandedPostId] = useState(null);
   const [replies, setReplies] = useState({}); // Map of postId -> replies array
   const [newReply, setNewReply] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch posts on mount
   useEffect(() => {
@@ -52,9 +53,12 @@ const ForumPage = () => {
     }
   };
 
-  const filteredPosts = selectedCategory === 'all'
-    ? posts
-    : posts.filter(post => post.category === selectedCategory);
+  const filteredPosts = posts.filter(post => {
+    const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
+    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.content.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   const categories = [
     { id: 'all', icon: '📚', label: 'all discussions' },
@@ -185,6 +189,16 @@ const ForumPage = () => {
 
           <main className="forum-main">
             <div className="forum-actions">
+              <div className="search-container">
+                <span className="search-icon">🔍</span>
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="search discussions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
               <button
                 className="btn-primary"
                 onClick={() => setIsCreating(!isCreating)}
