@@ -1,4 +1,5 @@
 import { useAuth } from '../context/AuthContext';
+import '../styles/Navigation.css';
 
 const Navigation = ({ currentPage, setCurrentPage }) => {
   const { user, logout } = useAuth();
