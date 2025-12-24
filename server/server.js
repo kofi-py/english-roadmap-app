@@ -39,8 +39,8 @@ app.get('/api/posts', async (req, res) => {
     `);
         res.json(result.rows);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        console.error('Database error (likely not connected):', err.message);
+        res.json([]); // Return empty array so frontend uses fallback
     }
 });
 
@@ -69,8 +69,8 @@ app.get('/api/posts/:id/replies', async (req, res) => {
         );
         res.json(result.rows);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        console.error('Database error (replies):', err.message);
+        res.json([]);
     }
 });
 
@@ -84,6 +84,21 @@ app.post('/api/posts/:id/replies', async (req, res) => {
             [id, author.toLowerCase(), content.toLowerCase()]
         );
         res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Like a post
+app.post('/api/posts/:id/like', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            'UPDATE posts SET likes = likes + 1 WHERE id = $1 RETURNING *',
+            [id]
+        );
+        res.json(result.rows[0]);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });

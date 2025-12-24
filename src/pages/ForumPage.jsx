@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { forumPosts } from '../data/forumData';
 import '../styles/ForumPage.css';
 
@@ -122,6 +122,20 @@ const ForumPage = () => {
     }
   };
 
+  const handleLike = async (e, postId) => {
+    e.stopPropagation();
+    try {
+      const response = await fetch(`http://localhost:3000/api/posts/${postId}/like`, {
+        method: 'POST',
+      });
+      if (response.ok) {
+        fetchPosts();
+      }
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
+  };
+
   return (
     <div className="forum-page">
       <div className="forum-header">
@@ -223,7 +237,7 @@ const ForumPage = () => {
                     <span>💬</span>
                     <span>{post.reply_count || 0} replies</span>
                   </div>
-                  <div className="stat">
+                  <div className="stat" onClick={(e) => handleLike(e, post.id)} style={{ cursor: 'pointer' }}>
                     <span>❤️</span>
                     <span>{post.likes || 0} helpful</span>
                   </div>
