@@ -2,9 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const authRoutes = require('./routes/auth');
 
 // Middleware
 app.use(cors({
@@ -21,25 +23,41 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// Test DB Connection
-pool.connect((err, client, release) => {
-    if (err) {
-        console.error('Error acquiring client', err.stack);
-    } else {
-        console.log('Database connected successfully');
-        release();
-    }
-});
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+
+// Database Connection
 
 // Routes
+app.use('/api/auth', authRoutes);
+
+// Get current user
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT id, username, email FROM users WHERE id = $1', [req.user.userId]);
+        res.json(user = result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 
 // Get all posts
 app.get('/api/posts', async (req, res) => {
     try {
         const result = await pool.query(`
-      SELECT p.*, 
+      SELECT p.*, u.username as author,
         (SELECT COUNT(*) FROM replies r WHERE r.post_id = p.id) as reply_count 
       FROM posts p 
+      LEFT JOIN users u ON p.user_id = u.id
       ORDER BY p.created_at DESC, p.id DESC
     `);
         res.json(result.rows);
@@ -50,12 +68,12 @@ app.get('/api/posts', async (req, res) => {
 });
 
 // Create a post
-app.post('/api/posts', async (req, res) => {
-    const { title, author, category, content } = req.body;
+app.post('/api/posts', authenticateToken, async (req, res) => {
+    const { title, category, content } = req.body;
     try {
         const result = await pool.query(
-            'INSERT INTO posts (title, author, category, content) VALUES ($1, $2, $3, $4) RETURNING *',
-            [title.toLowerCase(), author.toLowerCase(), category, content.toLowerCase()]
+            'INSERT INTO posts (user_id, title, author, category, content) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [req.user.userId, title.toLowerCase(), 'authenticated user', category, content.toLowerCase()]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -64,7 +82,7 @@ app.post('/api/posts', async (req, res) => {
         res.status(201).json({
             id: Math.floor(Math.random() * 1000),
             title: title.toLowerCase(),
-            author: author.toLowerCase(),
+            author: 'authenticated user',
             category,
             content: content.toLowerCase(),
             created_at: new Date()
@@ -76,10 +94,13 @@ app.post('/api/posts', async (req, res) => {
 app.get('/api/posts/:id/replies', async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await pool.query(
-            'SELECT * FROM replies WHERE post_id = $1 ORDER BY created_at ASC',
-            [id]
-        );
+        const result = await pool.query(`
+            SELECT r.*, u.username as author 
+            FROM replies r 
+            LEFT JOIN users u ON r.user_id = u.id 
+            WHERE r.post_id = $1 
+            ORDER BY r.created_at ASC
+        `, [id]);
         res.json(result.rows);
     } catch (err) {
         console.error('Database error (replies):', err.message);
@@ -88,13 +109,13 @@ app.get('/api/posts/:id/replies', async (req, res) => {
 });
 
 // Create a reply
-app.post('/api/posts/:id/replies', async (req, res) => {
+app.post('/api/posts/:id/replies', authenticateToken, async (req, res) => {
     const { id } = req.params;
-    const { author, content } = req.body;
+    const { content } = req.body;
     try {
         const result = await pool.query(
-            'INSERT INTO replies (post_id, author, content) VALUES ($1, $2, $3) RETURNING *',
-            [id, author.toLowerCase(), content.toLowerCase()]
+            'INSERT INTO replies (post_id, user_id, author, content) VALUES ($1, $2, $3, $4) RETURNING *',
+            [id, req.user.userId, 'authenticated user', content.toLowerCase()]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -111,7 +132,7 @@ app.post('/api/posts/:id/replies', async (req, res) => {
 });
 
 // Like a post
-app.post('/api/posts/:id/like', async (req, res) => {
+app.post('/api/posts/:id/like', authenticateToken, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query(

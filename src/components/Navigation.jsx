@@ -1,7 +1,13 @@
-import React from 'react';
-import '../styles/Navigation.css';
+import { useAuth } from '../context/AuthContext';
 
 const Navigation = ({ currentPage, setCurrentPage }) => {
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    setCurrentPage('home');
+  };
+
   return (
     <nav className="nav">
       <div className="nav-container">
@@ -34,6 +40,24 @@ const Navigation = ({ currentPage, setCurrentPage }) => {
           >
             contact
           </li>
+
+          {user ? (
+            <>
+              <li className="nav-item user-badge">
+                👤 {user.username}
+              </li>
+              <li className="nav-item" onClick={handleLogout}>
+                logout
+              </li>
+            </>
+          ) : (
+            <li
+              className={`nav-item ${currentPage === 'login' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('login')}
+            >
+              login
+            </li>
+          )}
         </ul>
       </div>
     </nav>

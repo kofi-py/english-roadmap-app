@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { forumPosts } from '../data/forumData';
 import '../styles/ForumPage.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://english-roadmap-app.onrender.com';
 
-const ForumPage = () => {
+const ForumPage = ({ setCurrentPage }) => {
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [posts, setPosts] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
@@ -70,15 +72,16 @@ const ForumPage = () => {
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
     try {
       const response = await fetch(`${API_URL}/api/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           title: newPost.title,
-          author: 'you',
           category: newPost.category,
           content: newPost.content
         }),
@@ -88,11 +91,7 @@ const ForumPage = () => {
         const savedPost = await response.json();
         setNewPost({ title: '', category: 'discussion', content: '' });
         setIsCreating(false);
-
-        // Optimistically update local posts state
         setPosts(prev => [savedPost, ...prev]);
-
-        // fetchPosts(); // Optionally still fetch if DB is connected
       }
     } catch (error) {
       console.error('Error creating post:', error);
@@ -112,14 +111,15 @@ const ForumPage = () => {
 
   const handleCreateReply = async (e, postId) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
     try {
       const response = await fetch(`${API_URL}/api/posts/${postId}/replies`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          author: 'you',
           content: newReply
         }),
       });
@@ -127,15 +127,10 @@ const ForumPage = () => {
       if (response.ok) {
         const savedReply = await response.json();
         setNewReply('');
-
-        // Optimistically update local replies state
         setReplies(prev => ({
           ...prev,
           [postId]: [...(prev[postId] || []), savedReply]
         }));
-
-        // Optionally still fetch for freshest data if DB is actually connected
-        // fetchReplies(postId); 
       }
     } catch (error) {
       console.error('Error creating reply:', error);
@@ -144,12 +139,15 @@ const ForumPage = () => {
 
   const handleLike = async (e, postId) => {
     e.stopPropagation();
+    const token = localStorage.getItem('token');
     try {
       const response = await fetch(`${API_URL}/api/posts/${postId}/like`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       if (response.ok) {
-        // Optimistically update the likes count in local state
         setPosts(prev => prev.map(post =>
           post.id === postId ? { ...post, likes: (post.likes || 0) + 1 } : post
         ));
@@ -164,10 +162,7 @@ const ForumPage = () => {
       <div className="forum-header">
         <div className="container">
           <h1 className="forum-title">community forum</h1>
-          <p className="forum-subtitle">
-            connect with fellow learners, discuss literature, share your writing,
-            and grow together
-          </p>
+          <p className="forum-subtitle">connect with fellow learners and grow together</p>
         </div>
       </div>
 
@@ -199,18 +194,20 @@ const ForumPage = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <button
-                className="btn-primary"
-                onClick={() => setIsCreating(!isCreating)}
-              >
-                {isCreating ? 'cancel' : 'create discussion'}
-              </button>
+              {user ? (
+                <button className="btn-primary" onClick={() => setIsCreating(!isCreating)}>
+                  {isCreating ? 'cancel' : 'create discussion'}
+                </button>
+              ) : (
+                <button className="btn-primary" onClick={() => setCurrentPage('login')}>
+                  log in to post
+                </button>
+              )}
             </div>
 
             {isCreating && (
               <form className="create-post-form fade-in" onSubmit={handleCreatePost}>
                 <h3 className="form-title">start a new discussion</h3>
-
                 <div className="form-group">
                   <label className="form-label">title</label>
                   <input
@@ -222,7 +219,6 @@ const ForumPage = () => {
                     required
                   />
                 </div>
-
                 <div className="form-group">
                   <label className="form-label">category</label>
                   <select
@@ -236,7 +232,6 @@ const ForumPage = () => {
                     <option value="success">success stories</option>
                   </select>
                 </div>
-
                 <div className="form-group">
                   <label className="form-label">content</label>
                   <textarea
@@ -247,65 +242,71 @@ const ForumPage = () => {
                     required
                   />
                 </div>
-
                 <button type="submit" className="btn-primary">post discussion</button>
               </form>
             )}
 
-            {filteredPosts.map((post) => (
-              <div key={post.id} className="post-card">
-                <div className="post-header" onClick={() => toggleReplies(post.id)}>
-                  <div>
-                    <div className="post-title">{post.title}</div>
-                    <div className="post-meta">
-                      <span className="post-author">{post.author}</span>
-                      <span> • </span>
-                      <span>{new Date(post.created_at).toLocaleDateString()}</span>
+            <div className="posts-list">
+              {filteredPosts.map((post) => (
+                <div key={post.id} className="post-card">
+                  <div className="post-header" onClick={() => toggleReplies(post.id)}>
+                    <div>
+                      <div className="post-title">{post.title}</div>
+                      <div className="post-meta">
+                        <span className="post-author">by {post.author || 'guest'}</span>
+                        <span className="post-date"> • {new Date(post.created_at).toLocaleDateString()}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="post-excerpt">{post.content}</div> {/* Using content as excerpt */}
-                <div className="post-stats">
-                  <div className="stat" onClick={() => toggleReplies(post.id)} style={{ cursor: 'pointer' }}>
-                    <span>💬</span>
-                    <span>{post.reply_count || 0} replies</span>
+                  <div className="post-excerpt">{post.content}</div>
+                  <div className="post-stats">
+                    <div className="stat" onClick={() => toggleReplies(post.id)}>
+                      <span>💬</span>
+                      <span>{post.reply_count || 0} replies</span>
+                    </div>
+                    <div className="stat" onClick={(e) => handleLike(e, post.id)}>
+                      <span>❤️</span>
+                      <span>{post.likes || 0} helpful</span>
+                    </div>
+                    <button className="btn-reply-toggle" onClick={() => toggleReplies(post.id)}>
+                      {expandedPostId === post.id ? 'close' : 'view replies'}
+                    </button>
                   </div>
-                  <div className="stat" onClick={(e) => handleLike(e, post.id)} style={{ cursor: 'pointer' }}>
-                    <span>❤️</span>
-                    <span>{post.likes || 0} helpful</span>
-                  </div>
-                  <button
-                    className="btn-reply-toggle"
-                    onClick={() => toggleReplies(post.id)}
-                  >
-                    {expandedPostId === post.id ? 'close replies' : 'reply'}
-                  </button>
-                </div>
 
-                {expandedPostId === post.id && (
-                  <div className="replies-section fade-in">
-                    {replies[post.id] && replies[post.id].map(reply => (
-                      <div key={reply.id} className="reply-card">
-                        <div className="reply-author">{reply.author}</div>
-                        <div className="reply-content">{reply.content}</div>
-                        <div className="reply-time">{new Date(reply.created_at).toLocaleDateString()}</div>
+                  {expandedPostId === post.id && (
+                    <div className="replies-section">
+                      <div className="replies-list">
+                        {(replies[post.id] || []).map(reply => (
+                          <div key={reply.id} className="reply-card">
+                            <div className="reply-header">
+                              <span className="reply-author">{reply.author || 'guest'}</span>
+                              <span className="reply-date">{new Date(reply.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <p className="reply-content">{reply.content}</p>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-
-                    <form className="reply-form" onSubmit={(e) => handleCreateReply(e, post.id)}>
-                      <textarea
-                        className="form-textarea reply-input"
-                        value={newReply}
-                        onChange={(e) => setNewReply(e.target.value)}
-                        placeholder="write a reply..."
-                        required
-                      ></textarea>
-                      <button type="submit" className="btn-secondary btn-sm">send reply</button>
-                    </form>
-                  </div>
-                )}
-              </div>
-            ))}
+                      {user ? (
+                        <form className="reply-form" onSubmit={(e) => handleCreateReply(e, post.id)}>
+                          <textarea
+                            className="reply-input"
+                            placeholder="write a reply..."
+                            value={newReply}
+                            onChange={(e) => setNewReply(e.target.value)}
+                            required
+                          />
+                          <button type="submit" className="btn-primary">reply</button>
+                        </form>
+                      ) : (
+                        <div className="login-prompt">
+                          <p>please <span className="login-link" onClick={() => setCurrentPage('login')}>log in</span> to reply</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </main>
         </div>
       </div>

@@ -5,7 +5,10 @@ import CurriculumPage from './pages/CurriculumPage';
 import DiagnosticPage from './pages/DiagnosticPage';
 import ForumPage from './pages/ForumPage';
 import ContactPage from './pages/ContactPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import Footer from './components/Footer';
+import { AuthProvider } from './context/AuthContext';
 import './styles/global.css';
 
 const App = () => {
@@ -31,24 +34,28 @@ const App = () => {
   };
 
   return (
-    <div className="app">
-      <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
+    <AuthProvider>
+      <div className="app">
+        <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
 
-      {currentPage === 'home' && <HomePage setCurrentPage={setCurrentPage} />}
-      {currentPage === 'curriculum' && (
-        <CurriculumPage
-          completedCourses={completedCourses}
-          toggleComplete={toggleComplete}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
-      )}
-      {currentPage === 'diagnostic' && <DiagnosticPage setCurrentPage={setCurrentPage} />}
-      {currentPage === 'forum' && <ForumPage />}
-      {currentPage === 'contact' && <ContactPage />}
+        {currentPage === 'home' && <HomePage setCurrentPage={setCurrentPage} />}
+        {currentPage === 'curriculum' && (
+          <CurriculumPage
+            completedCourses={completedCourses}
+            toggleComplete={toggleComplete}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+        )}
+        {currentPage === 'diagnostic' && <DiagnosticPage setCurrentPage={setCurrentPage} />}
+        {currentPage === 'forum' && <ForumPage setCurrentPage={setCurrentPage} />}
+        {currentPage === 'contact' && <ContactPage />}
+        {currentPage === 'login' && <LoginPage setCurrentPage={setCurrentPage} />}
+        {currentPage === 'signup' && <SignupPage setCurrentPage={setCurrentPage} />}
 
-      <Footer completedCourses={completedCourses} />
-    </div>
+        <Footer completedCourses={completedCourses} />
+      </div>
+    </AuthProvider>
   );
 };
 
