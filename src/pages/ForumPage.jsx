@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { forumPosts } from '../data/forumData';
 import '../styles/ForumPage.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://english-roadmap-app.onrender.com';
 
 const ForumPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
